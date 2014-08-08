@@ -79,3 +79,69 @@ sub DESTROY {
 }
 
 42;
+
+__END__
+
+=head1 NAME
+
+Test::Mock::Signature::Dispatcher - method dispatcher class.
+
+=head1 SYNOPSIS
+
+You can add one more metadata to you dispatcher:
+
+    my $dispatcher = $mock->dispatcher('my_method_name');
+    $dispatcher->add($meta);
+
+Or delete some meta:
+
+    $dispatcher->delete($meta);
+
+Also you can compile your dispatcher meta information:
+
+    $dispatcher->compile;
+
+=head1 DESCRIPTION
+
+Provides a dispatching mechanism for main mock module L<Test::Mock::Signature>.
+
+=head1 METHODS
+
+=head2 new($method_name)
+
+Takes C<$method_name> fully qualifed method name e.g.: Real::Module::method.
+Returns instance of the L<Test::Mock::Signature::Dispatcher> class.
+
+=head2 add($meta)
+
+Takes object of the L<Test::Mock::Signature::Meta> class and put it into
+dispatching list.
+
+=head2 delete($meta)
+
+Takes object of the L<Test::Mock::Signature::Meta> class and remove it from
+dispatching list.
+
+=head2 compile
+
+Mocks the method in real class and put dispatching mechanism - on.
+
+=head2 DESTROY
+
+Removes mocked method and put back default behavior.
+
+=head1 AUTHOR
+
+cono E<lt>cono@cpan.orgE<gt>
+
+=head1 COPYRIGHT
+
+Copyright 2014 - cono
+
+=head1 LICENSE
+
+Artistic v2.0
+
+=head1 SEE ALSO
+
+L<Test::Mock::Signature>

@@ -9,8 +9,13 @@ our @ISA = qw(Test::Mock::Signature);
 our $CLASS = 'CONO::Real';
 
 sub init {
-    my $self = shift;
-    $self->{'init'} = 'done';
+    my $mock = shift;
+
+    $mock->method(test => 'hello')->callback(
+        sub {
+            'world'
+        }
+    );
 }
 
 42;
