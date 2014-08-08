@@ -36,8 +36,12 @@ subtest 'mock signature with exact param' => sub  {
     $mock->method(proxy => 'test')->callback(sub { 'success' });
     is($real->proxy('test'), 'success', 'second override');
 
-    $mock->clear('proxy');
+    $mock->clear(proxy => 42);
     is($real->proxy(42), 42, 'proxy after clear');
+    is($real->proxy('test'), 'success', 'proxy(test) alive');
+
+    $mock->clear('proxy');
+    is($real->proxy('test'), 'test', 'proxy(test) is back to normal');
 
     done_testing;
 };

@@ -44,7 +44,6 @@ sub new {
 sub method {
     my $self   = shift;
     my $method = shift;
-    my $class  = ref $self || $self;
     my $params = [ @_ ];
 
     return Test::Mock::Signature::Meta->new(
@@ -57,7 +56,20 @@ sub method {
 sub clear {
     my $self   = shift;
     my $method = shift;
+    my $params = [ @_ ];
+    my $md     = $self->{'_method_dispatcher'};
 
+    if (scalar @$params) {
+        my $meta = Test::Mock::Signature::Meta->new(
+            class  => $self->{'_real_class'},
+            method => $method,
+            params => $params
+        );
+
+        $md->{$method}->delete($meta);
+
+        return;
+    }
     delete $self->{'_method_dispatcher'}->{$method};
 }
 

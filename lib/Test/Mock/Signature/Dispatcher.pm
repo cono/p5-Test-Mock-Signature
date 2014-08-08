@@ -27,6 +27,15 @@ sub add {
     @$list = sort { $cmp->compare_pattern($a->params, $b->params) } @$list, $meta;
 }
 
+sub delete {
+    my $self = shift;
+    my $meta = shift;
+    my $list = $self->{'_list'};
+    my $cmp  = $self->{'_cmp'};
+
+    @$list = grep { !$cmp->eq_pattern($_->params, $meta->params) } @$list;
+}
+
 sub compile {
     my $self = shift;
     return if defined $self->{'_default'};
