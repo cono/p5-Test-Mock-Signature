@@ -76,7 +76,7 @@ Name of the mocked method.
 
 Array reference of the parameters.
 
-=cut
+=back
 
 =head2 callback( [ $code_ref ] )
 
