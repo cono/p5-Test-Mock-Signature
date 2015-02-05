@@ -1,1 +1,2 @@
 * Add "procedure" mock
+* Add ability to make Test::Mock::Signature->new('CGI'), to mock CGI
