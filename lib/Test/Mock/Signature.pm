@@ -8,7 +8,7 @@ use Class::Load qw(load_class);
 
 use Test::Mock::Signature::Meta;
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 our @EXPORT_OK = qw(any);
 
 my $singleton = {
@@ -189,10 +189,12 @@ This method imports magic constant C<any> from class L<Data::PatternCompare>
 and does some magic behind the scene. Also it takes real class name from your
 C<our $CLASS> variable.
 
-=head2 new()
+=head2 new( $class_name )
 
-Default constructor. To simplify inheritance there are another method defined
-C<init()> which will be called from constructor.
+Default constructor. By default accepts C<$class_name> which should be mocked.
+In case of inheritance, class name goes from C<our $CLASS> variable. To
+simplify inheritance there are another method defined C<init()> which will be
+called from constructor.
 
 =head2 init()
 

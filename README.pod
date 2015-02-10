@@ -4,7 +4,20 @@ Test::Mock::Signature - base class for mock modules.
 
 =head1 SYNOPSIS
 
-Create module for mocking CGI:
+Simple method:
+
+    use Test::More plan => 1;
+    use Test::Mock::Signature qw( any );
+    use CGI;
+
+    my $mock = Your::Mock::Module->new('CGI');
+    $mock->method('param' => any)->callback( sub { 42 } );
+
+    my $request = CGI->new;
+
+    ok($request->param('something'), 42, 'mocked');
+
+Or more complex. Create module for mocking CGI:
 
     package Your::Mock::Module;
 
@@ -54,10 +67,12 @@ This method imports magic constant C<any> from class L<Data::PatternCompare>
 and does some magic behind the scene. Also it takes real class name from your
 C<our $CLASS> variable.
 
-=head2 new()
+=head2 new( $class_name )
 
-Default constructor. To simplify inheritance there are another method defined
-C<init()> which will be called from constructor.
+Default constructor. By default accepts C<$class_name> which should be mocked.
+In case of inheritance, class name goes from C<our $CLASS> variable. To
+simplify inheritance there are another method defined C<init()> which will be
+called from constructor.
 
 =head2 init()
 
@@ -98,6 +113,10 @@ it. e.g.:
 This method returns dispatcher object for the given C<$method_name>. Currently
 it's exposed as public just in case. Used for internal use and don't have any
 real user examples.
+
+=head2 DESTROY()
+
+On destroying object, mocked methods are getting to their original behavior.
 
 =head1 AUTHOR
 
