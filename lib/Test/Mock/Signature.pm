@@ -3,12 +3,16 @@ package Test::Mock::Signature;
 use strict;
 use warnings;
 
+use Scalar::Util qw(weaken);
 use Class::Load qw(load_class);
 
 use Test::Mock::Signature::Meta;
 
 our $VERSION = '0.02';
 our @EXPORT_OK = qw(any);
+
+my $singleton = {
+};
 
 sub any() {
     return $Data::PatternCompare::any;
@@ -17,30 +21,30 @@ sub any() {
 sub init { }
 
 sub new {
-    my $class  = shift;
-    my $singleton = do {
+    my $class      = shift;
+    my $mock_class = do {
         no strict 'refs';
-        ${$class .'::singleton'}
+        ${$class . '::CLASS'};
     };
-    return $singleton if $singleton;
+    $mock_class  ||= shift;
 
-    my $params = {
-        _real_class => do {
-            no strict 'refs';
-            ${$class .'::CLASS'}
-        },
+    die "No class for mocking defined. Look documentation for constructor new()." unless $mock_class;
+
+    my $param = {
         _method_dispatcher => {},
+        _real_class => $mock_class,
         @_
     };
 
-    $singleton = bless($params, $class);
-    {
-        no strict 'refs';
-        ${$class .'::singleton'} = $singleton;
-    }
-    $singleton->init;
+    return $singleton->{$mock_class} if exists $singleton->{$mock_class};
 
-    return $singleton;
+    load_class($mock_class);
+
+    $singleton->{$mock_class} = bless($param, $class);
+    weaken($singleton->{$mock_class});
+    $singleton->{$mock_class}->init;
+
+    return $singleton->{$mock_class};
 }
 
 sub method {
@@ -88,22 +92,12 @@ sub dispatcher {
 
 sub import {
     my $class = shift;
-    my $mock  = do {
-        no strict 'refs';
-        ${$class . '::CLASS'};
-    };
-
-    load_class($mock);
 
     my $caller = caller;
     my %export = map { $_ => 1 } @EXPORT_OK;
 
     no strict 'refs';
     no warnings 'redefine';
-
-    *{$mock .'::_tms_mock_instance'} = sub {
-        return $class->new;
-    };
 
     for my $i ( @_ ) {
         next unless exists $export{$i};
@@ -113,6 +107,13 @@ sub import {
 
         *$dst_glob = *$src_glob;
     }
+}
+
+sub DESTROY {
+    my $self = shift;
+    return unless ref($self);
+
+    delete $singleton->{$self->{'_real_class'}};
 }
 
 42;
@@ -125,7 +126,20 @@ Test::Mock::Signature - base class for mock modules.
 
 =head1 SYNOPSIS
 
-Create module for mocking CGI:
+Simple method:
+
+    use Test::More plan => 1;
+    use Test::Mock::Signature qw( any );
+    use CGI;
+
+    my $mock = Your::Mock::Module->new('CGI');
+    $mock->method('param' => any)->callback( sub { 42 } );
+
+    my $request = CGI->new;
+
+    ok($request->param('something'), 42, 'mocked');
+
+Or more complex. Create module for mocking CGI:
 
     package Your::Mock::Module;
 
@@ -219,6 +233,10 @@ it. e.g.:
 This method returns dispatcher object for the given C<$method_name>. Currently
 it's exposed as public just in case. Used for internal use and don't have any
 real user examples.
+
+=head2 DESTROY()
+
+On destroying object, mocked methods are getting to their original behavior.
 
 =head1 AUTHOR
 

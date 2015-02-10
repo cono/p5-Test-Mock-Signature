@@ -8,14 +8,10 @@ use File::Spec;
 use lib File::Spec->catdir($Bin, 'lib');
 
 use CONO::Real;
-use CONO::Mock qw| any |;
+use Test::Mock::Signature;
 
 my $real = CONO::Real->new;
-my $mock = CONO::Mock->new(skip_init => 1);
-
-subtest 'constructor parameters' => sub {
-    is($real->test('hello'), 42, 'skip_init available in init()');
-};
+my $mock = Test::Mock::Signature->new('CONO::Real');
 
 subtest 'mock signature with empty params' => sub {
     is($real->test, 42, 'call test before mock');

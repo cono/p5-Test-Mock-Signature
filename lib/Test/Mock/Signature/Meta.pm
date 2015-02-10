@@ -3,6 +3,7 @@ package Test::Mock::Signature::Meta;
 use strict;
 use warnings;
 
+use Test::Mock::Signature;
 use Test::Mock::Signature::Dispatcher;
 
 sub new {
@@ -18,7 +19,7 @@ sub callback {
     return $self->{'callback'} unless defined $callback;
 
     my $real_class = $self->{'class'};
-    my $mock       = $real_class->_tms_mock_instance; # defined in import
+    my $mock       = Test::Mock::Signature->new($real_class);
 
     $self->{'callback'}  = $callback;
 
